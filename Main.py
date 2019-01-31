@@ -7,6 +7,7 @@ import pandas as pd
 import sys
 import h5py
 import math
+import flask
 from __future__ import print_function
 from keras.layers.core import Activation
 from keras.layers.core import Dense
@@ -47,7 +48,7 @@ words = sorted(list(set(words)))
 windex = dict((i, j) for j, i in enumerate(words))
 indexw = dict((i, j) for i, j in enumerate(words))
 
-#訓練データの作成
+#訓練データの生成
 monn=np.zeros((len(mon),1),dtype=int)
 for i in range(0,len(mon)):
   if mon[i]in windex:
@@ -72,7 +73,7 @@ class neural:
     self.outp=outp
     
     
-    @app.route('/graph')
+@app.route('/graph')
 def showg():
   import matplotlib.pyplot
   from matplotlib.backends.backend_agg import FigureCanvasAgg
