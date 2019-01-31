@@ -70,3 +70,23 @@ class neural:
   def init(self,inpu,outp):
     self.inpu=inpu
     self.outp=outp
+    
+    
+    @app.route('/graph')
+def showg():
+  import matplotlib.pyplot
+  from matplotlib.backends.backend_agg import FigureCanvasAgg
+  import cStringIO
+  
+  fig,ax=matplotlib.pyplot.subplots()
+  ax.set_title(u'入力された文章の感情解析(positive or negative)')
+  ax=plt.pie()#書く
+  canvas=FigureCanvasAgg(fig)
+  buf=cStringIO.StringIO()
+  canvas.print_png(buf)
+  data=buf.getvalue()
+  res=make_response(data)
+  res.headers['Content-Type']='graph.png'
+  res.headers['Content-Length']=len(data)
+  
+  return res
