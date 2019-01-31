@@ -71,7 +71,9 @@ class neural:
   def init(self,inpu,outp):
     self.inpu=inpu
     self.outp=outp
-    
+  def createmodel(self):
+    model = Sequential()
+    model.addEmbedding(self.input_dim, self.output_dim, input_length=1, embeddings_initializer=uniform(seed=22222222)))
     
 @app.route('/graph')
 def showg():
