@@ -56,11 +56,14 @@ for i in range(0,len(mon)):
     monn[i,0]=windex['gabgabeidjdkdjekejdhogehogelatteukkuku']
     
 monlen=len(monn)-ma
+train=[]
 target=[]
 
 
 for i in range(ma,monlen):
-  
+  train.append(monn[i])
+  target.extend(monn[i-ma:i])
+  target.extend(monn[i+1:i+1+ma])
 
 #ニューラルネットワークの構築
 class neural:
