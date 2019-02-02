@@ -21,11 +21,13 @@ from keras.optimizers import RMSprop
 from keras.utils import np_utils
 
 
+with open('hogehoge.csv',  encoding="shift-jis") as file:
+    inp = csv.reader(file)
+    data = [ i for i in inp]
 #CSVファイルを読み込む
-inp = csv.reader(open('hogehoge.csv','r'))
+#inp = csv.reader(open('hogehoge.csv','r'))
 
 #宣言
-data = [ i for i in inp]
 gabword=[]
 mon = np.array(data)
 words = sorted(list(set(mon)))
@@ -65,6 +67,15 @@ for i in range(ma,monlen):
   train.append(monn[i])
   target.extend(monn[i-ma:i])
   target.extend(monn[i+1:i+1+ma])
+  
+xtrain=np.array(train).reshape(len(train),1)
+ytrain=np.array(target).reshape(len(train),2*ma)
+xy=zip(xtrain,ytrain)
+nr.seed(12345)
+nr.shuffle(xy)
+xtrain,ytrain=zip(*z)
+xtrain=np.array(xtrain).reshape(len(train),1)
+ytrain=np.array(ytrain).reshape(len(train),2*ma)
 
 #ニューラルネットワークの構築
 class neural:
@@ -73,23 +84,60 @@ class neural:
     self.outp=outp
   def createmodel(self):
     model = Sequential()
-    model.addEmbedding(self.input_dim, self.output_dim, input_length=1, embeddings_initializer=uniform(seed=22222222)))
+    model.add(Embedding(self.input_dim, self.output_dim, input_length=1, embeddings_initializer=uniform(seed=22222222)))
+    model.add(Flatten())
+    moddel.add(Dense(self.inpu,use_bias=False,kernel_initializer=glorot_uniform(seed=22222222)))
+    mode.add(Activation("softmax"))
+    model.compile(loss="categorical_crossentropy",optimizer="RMSprop",metrics=['categorical_crossentropy'])
+    return model
+  def train(self,xtrain,ytrain,batch_size,epochs,ma,emb_param):
+    earlystop=Earlestopping(monitor='categorical_crossentropy',patience=1,verbose=1)
+    model=self.vreatemodel()
+    model.fit(xtrain,ytrain,batch_size=batch_size,epochs=epochs,verbose=1,shuffle=True,callbacks=[earlystop],validation_split=0.0)
+    return model
+  
+vec_dim=100
+epochs=10
+batch_size=200
+inpu=len(words)
+outp=vec_dim
+prediction=neural(inpu,outp)
+row=ytrain.shape[0]
+emb_param='param_skip_gram_2_1.hdf5'
+rowmon=np.zeros((row,inpu),dtype='int8')
+for i in range(0,row):
+  for j in range(0,2*ma):
+    rowmon[i,ytrain[i,j]]=1
     
-@app.route('/graph')
-def showg():
-  import matplotlib.pyplot
-  from matplotlib.backends.backend_agg import FigureCanvasAgg
-  import cStringIO
-  
-  fig,ax=matplotlib.pyplot.subplots()
-  ax.set_title(u'入力された文章の感情解析(positive or negative)')
-  ax=plt.pie()#書く
-  canvas=FigureCanvasAgg(fig)
-  buf=cStringIO.StringIO()
-  canvas.print_png(buf)
-  data=buf.getvalue()
-  res=make_response(data)
-  res.headers['Content-Type']='graph.png'
-  res.headers['Content-Length']=len(data)
-  
-  return res
+xtrain=xtrain.reshape(row,1)
+model=neural.train(xtrain,ytrain,batch_size,epochs,ma,emb_param)
+model.save_weights(emb_param)
+
+param_test=model.get_weights()
+param=param_test[0]
+word0='下人'
+word1='人間'
+word2='老婆'
+vec0=param[windex[word0],:]
+vec1=param[windex[word1],:]
+vec2=param[windex[word2],:]
+
+vec=vec0+vec1+vec2
+vecnor=math.sqrt(np.dot(vec,vec))
+wordli=[windex[word0],windex[word1],windex[word2]]
+dis=-1.0
+fimon=0
+
+for i in range(0,5):
+  dis=-1.0
+  fimon=0
+  for j in range(0,len(words)):
+    if j not in wordli:
+      dis0=np.dot(vec,param[i,:])
+      dis0=dis0/vecnor/math.sqrt(np.dot(param[i,:],param[i,:]))
+      if dis<dis0:
+        dis=dis0
+        fimon=i
+  print('第'+str(j+1)+'番目の候補=')
+  print('類似度=',dis,' ',m,' ',indexw[fimon])
+  wordli.append(fimon)
