@@ -8,6 +8,8 @@ import sys
 import h5py
 import math
 import flask
+import random
+import numpy.random as nr
 from __future__ import print_function
 from keras.layers.core import Activation
 from keras.layers.core import Dense
@@ -24,44 +26,43 @@ from keras.utils import np_utils
 with open('hogehoge.csv',  encoding="shift-jis") as file:
     inp = csv.reader(file)
     data = [ i for i in inp]
-#CSVファイルを読み込む
-#inp = csv.reader(open('hogehoge.csv','r'))
 
 #宣言
 gabword=[]
 mon = np.array(data)
-words = sorted(list(set(mon)))
+mon2=np.r_[mon[:,0]]
+words = sorted(list(set(mon2)))
 cou = np.zeros(len(words))
 ma=10
 windex = dict((i, j) for j, i in enumerate(words))
 indexw = dict((i, j) for i, j in enumerate(words))
 
 #語数を数える
-for i in range(0, len(words)):
-    cou[windex[mon[j]]]+=1
+for i in range(0, len(mon2)):
+    cou[windex[mon2[i]]]+=1
 
 #文章中にあまり出てこない単語はゴミなので弾く(NGワードに書き換える)
 for i in range(0, len(words)):
-  if cnt[i] <= 3 :
+  if cou[i] <= 3 :
     gabword.append(words[i])
-    words[i] = 'gabgabeidjdkdjekejdhogehogelatteukkuku'
+    words[i] = 'gabage'
 
 words = sorted(list(set(words)))
 windex = dict((i, j) for j, i in enumerate(words))
 indexw = dict((i, j) for i, j in enumerate(words))
 
 #訓練データの生成
-monn=np.zeros((len(mon),1),dtype=int)
-for i in range(0,len(mon)):
-  if mon[i]in windex:
-    monn[i,0]=windex[mon[i]]
+monn=np.zeros((len(mon2),1),dtype=int)
+
+for i in range(0,len(mon2)):
+  if mon2[i]in windex:
+    monn[i,0]=windex[mon2[i]]
   else:
-    monn[i,0]=windex['gabgabeidjdkdjekejdhogehogelatteukkuku']
+    monn[i,0]=windex['gabage']
     
 monlen=len(monn)-ma
 train=[]
 target=[]
-
 
 for i in range(ma,monlen):
   train.append(monn[i])
@@ -73,7 +74,7 @@ ytrain=np.array(target).reshape(len(train),2*ma)
 xy=zip(xtrain,ytrain)
 nr.seed(12345)
 nr.shuffle(xy)
-xtrain,ytrain=zip(*z)
+xtrain,ytrain=zip(*xy)
 xtrain=np.array(xtrain).reshape(len(train),1)
 ytrain=np.array(ytrain).reshape(len(train),2*ma)
 
@@ -103,7 +104,7 @@ inpu=len(words)
 outp=vec_dim
 prediction=neural(inpu,outp)
 row=ytrain.shape[0]
-emb_param='param_skip_gram_2_1.hdf5'
+emb_param='param_skip_gfram_2_1.hdf5'
 rowmon=np.zeros((row,inpu),dtype='int8')
 for i in range(0,row):
   for j in range(0,2*ma):
